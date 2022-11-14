@@ -19,7 +19,7 @@ ALl the api will follow `<rooturl>/v1/<resources end point>`
 
 
 ### Task API
-All the task related transaction of api will be request through `<roolurl>/v1/task`
+All the task related transaction of api will be request through `<rooturl>/v1/task`
 |#|PATH|METHOD|IS PRIVATE| DESCRIPTION| 
 |---|----|-----|-------|--------|
 |1.|`/`|GET|NO|This endpoint will return all the tasks from database|
