@@ -1,77 +1,100 @@
 import express from 'express'
+import { getTasks, insertTask, updateTasks, deleteTasks } from '../models/task/TaskModel.js';
 const router = express.Router();
 
 // fake database
-let fakeTaskTable = [
-    {
-        _id: 1,
-        "task": "coding",
-        "hr": 45,
-    },
-    {
-        _id: 2,
-        "task": "watchin TV",
-        "hr": 10,
-    },
-    {
-        _id: 3,
-        "task": "cooking",
-        "hr": 15,
-    },
+// let fakeTaskTable = [
+//     {
+//         _id: 1,
+//         "task": "coding",
+//         "hr": 45,
+//     },
+//     {
+//         _id: 2,
+//         "task": "watchin TV",
+//         "hr": 10,
+//     },
+//     {
+//         _id: 3,
+//         "task": "cooking",
+//         "hr": 15,
+//     },
 
 
-];
+// ];
 
 //  workflow : CRUD
 // C(create) => receive new task and store in the database
-router.post("/", (req, res) => {
+router.post("/", async(req, res) => {
+    
+  try {
     console.log(req.body);
-    fakeTaskTable.push(req.body);
+    const result = await insertTask(req.body);
+    console.log(result);
+   
   res.json({ status:"success", message: "new task has been added" });
+    
+  } catch (error) {
+    console.log(error);
+    res.json({
+        status: "error",
+        message: error.message
+    });
+    
+  }
 });
 
 // R(Read) => read data from data base and return to the client
-router.get("/", (req, res) => {
+router.get("/", async(req, res) => {
+    // database quert to get all the task
+    const data = await getTasks();
 
   res.json({ 
     status: "success",
     message: "here are the available list",
-    data: fakeTaskTable,
+    data,
 });
     
 });
 
 // U(Update) => update some information of existing data int he database and respond client accordingly
-router.put("/", (req, res) => {
+router.put("/", async(req, res) => {
     const {_id, type}= req.body;
     console.log(req.body);
-    fakeTaskTable = fakeTaskTable.map((item)=>{
-        if(item._id === _id){
-            item.type = type;
-        }
-        return item;
-    });
-  res.json({ message: "todo put method", status:"success" });
+   const obj = {type:type}
+   const result = await updateTasks(_id,{type})
+//    console.log(result)
+   if(result._id){
+
+    res.json({ message: "The task has been updated", status:"success" });
+   }
+   else{
+    res.json({ message: "Nothing deleted", status:"success" });
+   };
+  
 });
 
 //D(Delete) => Delete data(s) from database and response client accordingly
-router.delete("/:_id?", (req, res) => {
+router.delete("/", async(req, res) => {
     // console.log(req.body);
-    const { _id } = req.params;
+    const _ids = req.body;
+    
+     const result = await deleteTasks(_ids);
+     console.log(result);
 
-    if(!_id){
-        res.status(400).json({
-            status: "error",
-            message: "invalid request, _id is missing",
+     if(result?.deletedCount){
 
-        });
-        return;
-    }
-    // console.log(req.params);
-    fakeTaskTable = fakeTaskTable.filter((item)=>item._id!=_id);
-    res.json({ 
-    status: "success",
-    message: "The selected task has been deleted" });
+        res.json({ 
+            status: "success",
+            message: "The selected task has been deleted" })
+     }else{
+        res.json({
+            status: "success",
+            message: "Nothing to delete"  
+        })
+     }
+    
+    
 });
 
 export default router ;

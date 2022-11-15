@@ -8,6 +8,9 @@ app.use(morgan("dev"));
 app.use(express.json());
 
 
+// db connection
+import mongoConnect from "./src/config/dbConfig.js";
+mongoConnect();
 // api endpoints
 
 import taskRouter from './src/router/taskRouter.js';
